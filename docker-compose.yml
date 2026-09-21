@@ -1,0 +1,17 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8080:8080"
+    environment:
+      # Both blank by default - only needed if joblens.ai.enabled / joblens.jev.enabled are
+      # turned on (backend/src/main/resources/application.yml, or override below). See
+      # .env.example.
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - JEV_API_KEY=${JEV_API_KEY:-}
+    volumes:
+      # Mounts your real candidate-profile.yml (git-ignored) into the container at the path
+      # application.yml's spring.config.import expects, relative to the app's /app workdir.
+      - ./backend/profile:/app/profile:ro
+    restart: unless-stopped

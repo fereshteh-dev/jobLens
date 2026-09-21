@@ -1,0 +1,45 @@
+name: Extension CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'extension/**'
+      - '.github/workflows/extension-ci.yml'
+  pull_request:
+    paths:
+      - 'extension/**'
+      - '.github/workflows/extension-ci.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: extension
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: extension/package-lock.json
+
+      - run: npm ci
+
+      - name: Type-check
+        run: npm run compile
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload built extension
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: joblens-extension
+          path: extension/.output/chrome-mv3

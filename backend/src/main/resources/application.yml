@@ -1,0 +1,93 @@
+spring:
+  application:
+    name: joblens-backend
+  config:
+    import:
+      - "optional:file:./profile/candidate-profile.yml"
+      - "classpath:jev-questions.yml"
+  threads:
+    virtual:
+      # Outbound calls to Jev and the LLM are blocking; virtual threads keep request-handling
+      # capacity from being limited by the platform thread pool while those calls are in flight.
+      enabled: true
+  http:
+    clients:
+      connect-timeout: 5s
+      read-timeout: 15s
+  ai:
+    anthropic:
+      # Real key comes from the ANTHROPIC_API_KEY env var (never committed). The placeholder
+      # keeps startup working when joblens.ai.enabled=false and no key is configured at all.
+      api-key: ${ANTHROPIC_API_KEY:not-configured}
+      chat:
+        options:
+          model: claude-sonnet-5
+
+joblens:
+  gate:
+    max-red-flag-score: 1.5
+  cache:
+    max-size: 1000
+    expire-after-write: 24h
+  rate-limit:
+    enabled: true
+    requests-per-minute: 60
+  security:
+    api-key:
+      # Turn on once the extension has a real key configured (see its options page) - see
+      # SecurityProperties/ADR-0005 for why this defaults off, same as ai.enabled/jev.enabled.
+      enabled: false
+      valid-keys: []
+    # e.g. chrome-extension://<your-extension-id> once you've loaded the built extension.
+    # Empty means no CORS headers are sent at all, so browsers block cross-origin calls.
+    allowed-origins: []
+    max-request-body-size: 50KB
+  ai:
+    # Real talking points require ANTHROPIC_API_KEY and cost real money - opt in explicitly.
+    # When false (the default), StubTalkingPointsWriter is used instead - see ADR-0003/CLAUDE.md.
+    enabled: false
+  jev:
+    # Real classification calls Jev and costs money - opt in explicitly. When false (the
+    # default), MockPostingClassifier is used instead - see ADR-0003/CLAUDE.md.
+    enabled: false
+    base-url: https://api.typesafe.ai/v1
+    # Real key comes from the JEV_API_KEY env var (never committed). The placeholder keeps
+    # startup working when joblens.jev.enabled=false and no key is configured at all.
+    api-key: ${JEV_API_KEY:not-configured}
+    model: jev-latest
+  thresholds:
+    # Applied to whichever probability/confidence a classifier reports - "high"/"middle" from
+    # the brief. confidentAt is inclusive-and-above; uncertainAt is inclusive-and-above, below
+    # confidentAt; anything lower is Ignored.
+    confident-at: 0.8
+    uncertain-at: 0.4
+  resilience:
+    # Both blocks are always bound at startup regardless of which classifier/writer bean is
+    # active (joblens.ai.enabled / joblens.jev.enabled), since @ConfigurationProperties binds
+    # eagerly either way.
+    talking-points:
+      retry-max-attempts: 3
+      retry-wait-duration: 500ms
+      circuit-breaker-sliding-window-size: 10
+      circuit-breaker-minimum-calls: 5
+      circuit-breaker-failure-rate-threshold: 50
+      circuit-breaker-wait-duration-in-open-state: 30s
+    jev:
+      # Exponential backoff per Jev's own API guidance (see ADR-0005).
+      retry-max-attempts: 3
+      retry-initial-interval: 500ms
+      retry-backoff-multiplier: 2.0
+      circuit-breaker-sliding-window-size: 10
+      circuit-breaker-minimum-calls: 5
+      circuit-breaker-failure-rate-threshold: 50
+      circuit-breaker-wait-duration-in-open-state: 30s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,info
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%X{correlationId}] %logger{36} - %msg%n"

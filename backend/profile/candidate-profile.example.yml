@@ -1,0 +1,11 @@
+# Copy this file to candidate-profile.yml (git-ignored) in the same directory and fill in
+# your own values. candidate-profile.yml is loaded relative to the working directory the
+# backend is started from (normally `backend/`) - see spring.config.import in application.yml.
+joblens:
+  candidate-profile:
+    # One of: JUNIOR, MID, SENIOR, STAFF_PLUS
+    target-seniority: SENIOR
+    # Your personal minimum for a posting to count as sponsorship-friendly.
+    # One of: EXPLICIT_YES, LIKELY, UNLIKELY, EXPLICIT_NO, UNKNOWN
+    # Use UNKNOWN here if you don't need visa sponsorship or relocation support at all.
+    minimum-sponsorship-likelihood: UNKNOWN

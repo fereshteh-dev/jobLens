@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>JobLens</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>JobLens</h1>
+      </header>
+
+      <section id="privacy-notice" hidden>
+        <p>
+          When you click "Analyze this posting", JobLens sends that posting's text to the
+          backend URL you configure. Your backend forwards it to Jev (TypeSafe AI) for
+          classification, and - only for postings that pass your configured gate - to a
+          third-party LLM provider (Anthropic) for talking points. Nothing is sent
+          automatically, and only the one posting you're viewing is ever sent.
+        </p>
+        <button id="privacy-ack">I understand</button>
+      </section>
+
+      <section id="no-settings" hidden>
+        <p>Set your backend URL in JobLens options before analyzing a posting.</p>
+        <button id="open-options">Open options</button>
+      </section>
+
+      <section id="main-view" hidden>
+        <button id="analyze-button">Analyze this posting</button>
+        <p id="status" role="status"></p>
+        <div id="result"></div>
+      </section>
+    </div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

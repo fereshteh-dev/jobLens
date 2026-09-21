@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>JobLens options</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>JobLens settings</h1>
+
+      <form id="settings-form">
+        <label for="backend-url">Backend URL</label>
+        <input id="backend-url" name="backendUrl" type="url" placeholder="http://localhost:8080" required />
+
+        <label for="api-key">API key</label>
+        <input id="api-key" name="apiKey" type="password" placeholder="Only needed if your backend requires one" />
+
+        <button type="submit">Save</button>
+        <p id="saved-notice" role="status" hidden>Saved.</p>
+      </form>
+
+      <p class="note">
+        Nothing here leaves your device except when you click "Analyze this posting" in the
+        side panel, which sends that one posting's text to the backend URL above.
+      </p>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

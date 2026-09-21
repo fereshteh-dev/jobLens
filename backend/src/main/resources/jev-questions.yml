@@ -1,0 +1,80 @@
+# Jev question schema - data, not code (see CLAUDE.md / ADR-0002). Question ids for the six
+# red-flag questions must match RedFlagKind enum names, lowercased.
+jev-schema:
+  questions:
+    actual_seniority:
+      type: choice
+      instructions: >
+        Based on the responsibilities, required scope of ownership, and level of independence
+        described in this job posting, classify the ACTUAL seniority level this role
+        represents - regardless of what title the posting uses.
+      criteria:
+        junior: "Entry-level role; close supervision expected; well-defined, narrow tasks; foundational skills."
+        mid: "Works independently on well-defined problems; some design input; moderate scope; limited mentoring."
+        senior: "Owns significant technical scope end to end; mentors others; makes independent architectural decisions within a team."
+        staff_plus: "Cross-team or organization-wide technical leadership; sets technical direction beyond a single team; influences strategy."
+    title_vs_reality:
+      type: choice
+      instructions: >
+        Compare the job title to the responsibilities and scope actually described in the
+        posting. Does the title accurately represent the role?
+      criteria:
+        match: "The title accurately reflects the described responsibilities and seniority."
+        inflated_title: "The title implies more seniority or scope than the responsibilities describe."
+        understated_title: "The title implies less seniority or scope than the responsibilities describe."
+    hidden_overtime:
+      type: noul
+      instructions: >
+        Does this posting signal an expectation of unpaid or unacknowledged overtime (for
+        example: "fast-paced", "wear many hats", "must be available after hours", "startup
+        mentality", "whatever it takes") without explicitly compensating for it?
+    vague_scope:
+      type: noul
+      instructions: >
+        Is the scope of this role vague or so broad that a candidate could not reasonably know
+        what they would be responsible for day to day?
+    too_many_roles:
+      type: noul
+      instructions: >
+        Does this posting effectively describe multiple distinct jobs combined into one - for
+        example, requiring deep expertise across unrelated disciplines like DevOps, design,
+        and sales in a single individual-contributor role?
+    no_compensation_info:
+      type: noul
+      instructions: >
+        Does this posting omit any information about compensation - no salary range, no
+        equity, and no mention of benefits?
+    unrealistic_requirements:
+      type: noul
+      instructions: >
+        Does this posting list requirements that are unrealistic for the described role - for
+        example, more years of experience with a technology than the technology has existed,
+        or an excessive number of required skills for the seniority level?
+    high_turnover_signals:
+      type: noul
+      instructions: >
+        Does this posting contain language suggesting high turnover or a difficult work
+        environment - for example, urgency about backfilling a role, repeated re-posting
+        language, or unusually high pressure framing for the seniority level?
+    visa_sponsorship:
+      type: choice
+      instructions: >
+        Based only on this posting's own text, how likely is the employer to sponsor a work
+        visa for this role?
+      criteria:
+        explicit_yes: "The posting explicitly states visa sponsorship is available."
+        likely: "The posting suggests sponsorship is possible (e.g. welcomes international candidates) without an explicit guarantee."
+        unlikely: "The posting suggests sponsorship is unlikely (e.g. requires current work authorization) without an explicit refusal."
+        explicit_no: "The posting explicitly states no visa sponsorship is available."
+        unknown: "The posting gives no information relevant to visa sponsorship."
+    relocation_support:
+      type: choice
+      instructions: >
+        Based only on this posting's own text, how likely is the employer to support
+        relocation for this role?
+      criteria:
+        explicit_yes: "The posting explicitly states relocation assistance is available."
+        likely: "The posting suggests relocation support is possible without an explicit guarantee."
+        unlikely: "The posting suggests relocation support is unlikely without an explicit refusal."
+        explicit_no: "The posting explicitly states no relocation support is available."
+        unknown: "The posting gives no information relevant to relocation."
