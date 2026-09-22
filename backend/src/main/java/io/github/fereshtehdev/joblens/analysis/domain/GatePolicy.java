@@ -30,13 +30,18 @@ public final class GatePolicy {
                     .formatted(redFlagScore, settings.maxRedFlagScore()));
         }
 
-        if (!analysis.sponsorship().visa().meetsMinimum(profile.minimumSponsorshipLikelihood())) {
-            reasons.add("Visa sponsorship likelihood %s is below minimum %s"
-                    .formatted(analysis.sponsorship().visa(), profile.minimumSponsorshipLikelihood()));
-        }
-        if (!analysis.sponsorship().relocation().meetsMinimum(profile.minimumSponsorshipLikelihood())) {
-            reasons.add("Relocation support likelihood %s is below minimum %s"
-                    .formatted(analysis.sponsorship().relocation(), profile.minimumSponsorshipLikelihood()));
+        // UNKNOWN as a minimum means "I don't need this, don't gate on it" (see
+        // candidate-profile.example.yml) - not "reject anything ranked below UNKNOWN".
+        // Ranked comparison only applies once the candidate has an actual requirement.
+        if (profile.minimumSponsorshipLikelihood() != SponsorshipLikelihood.UNKNOWN) {
+            if (!analysis.sponsorship().visa().meetsMinimum(profile.minimumSponsorshipLikelihood())) {
+                reasons.add("Visa sponsorship likelihood %s is below minimum %s"
+                        .formatted(analysis.sponsorship().visa(), profile.minimumSponsorshipLikelihood()));
+            }
+            if (!analysis.sponsorship().relocation().meetsMinimum(profile.minimumSponsorshipLikelihood())) {
+                reasons.add("Relocation support likelihood %s is below minimum %s"
+                        .formatted(analysis.sponsorship().relocation(), profile.minimumSponsorshipLikelihood()));
+            }
         }
 
         return reasons.isEmpty() ? GateDecision.passing() : GateDecision.failed(List.copyOf(reasons));

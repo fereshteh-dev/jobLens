@@ -14,8 +14,9 @@ built-ins over libraries where they suffice.
   `spring.http.clients.read-timeout` properties, which apply to all auto-configured
   `RestClient`/`RestTemplate`/`WebClient` builders (confirmed against the Boot 4.1
   reference docs). Built-in, no library needed. Not independently verified against a live
-  Anthropic call in this phase (no API key available in this environment) — worth a manual
-  check once a real key is configured.
+  LLM call in this phase (no API key available in this environment) — worth a manual
+  check once a real key is configured (see ADR-0011 for a live-testing session that
+  surfaced a related bug, though not this specific timeout question).
 - **Retry + circuit breaker**: Resilience4j only (`resilience4j-spring-boot3`, `2.4.0`),
   dropping the originally-planned separate Spring Retry dependency — using two different
   retry mechanisms on the same call path (Spring Retry's `@Retryable` stacked with

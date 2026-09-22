@@ -70,6 +70,22 @@ class GatePolicyTest {
     }
 
     @Test
+    void minimumSponsorshipUnknown_meansNoRequirement_evenBelowExplicitNo() {
+        // Regression test: UNKNOWN as a minimum documented in candidate-profile.example.yml
+        // as "I don't need this" must not reject postings ranked below UNKNOWN either - found
+        // via a live test where a real posting's UNLIKELY relocation wrongly failed the gate
+        // against a minimum of UNKNOWN.
+        Analysis analysis = analysis(Seniority.SENIOR, List.of(ignoredFlag()),
+                sponsorship(SponsorshipLikelihood.EXPLICIT_NO, SponsorshipLikelihood.EXPLICIT_NO));
+        CandidateProfile profile = new CandidateProfile(Seniority.SENIOR, SponsorshipLikelihood.UNKNOWN);
+
+        GateDecision decision = GatePolicy.evaluate(analysis, profile, LENIENT_SETTINGS);
+
+        assertThat(decision.passed()).isTrue();
+        assertThat(decision.reasons()).isEmpty();
+    }
+
+    @Test
     void accumulatesAllFailureReasons() {
         Analysis analysis = analysis(Seniority.MID,
                 List.of(confidentFlag(RedFlagKind.HIDDEN_OVERTIME, 0.95), confidentFlag(RedFlagKind.VAGUE_SCOPE, 0.95)),

@@ -40,6 +40,35 @@ describe('linkedInAdapter.extract', () => {
     });
   });
 
+  it('extracts from the SDUI job-details pane used on search-results pages', () => {
+    const doc = docWithHtml(
+      `
+      <a href="https://www.linkedin.com/jobs/view/999/">Some other job in the results list</a>
+      <div data-sdui-screen="com.linkedin.sdui.flagshipnav.jobs.SemanticJobDetails">
+        <a href="https://www.linkedin.com/company/cgi/life/"><figure><img alt=""></figure><p>CGI</p></a>
+        <p><a href="https://www.linkedin.com/jobs/view/4440315405/?trackingId=x">Senior Java Developers</a></p>
+        <p><span>United Kingdom</span><span> </span>·<span> </span><span>Reposted 5 days ago</span></p>
+        <div id="JobDetails_AboutTheJob_4440315405">
+          <span data-testid="expandable-text-box">Position Description<br><br>At CGI, we build things.<ul><li> Build Spring Boot services</li><li> Ship them</li></ul><button data-testid="expandable-text-button"><span>… more</span></button></span>
+        </div>
+        <div id="JobDetails_AboutTheCompany_4440315405">
+          <span data-testid="expandable-text-box">Founded in 1976.</span>
+        </div>
+      </div>
+    `,
+      'https://www.linkedin.com/jobs/search-results/?currentJobId=4440315405',
+    );
+
+    const posting = linkedInAdapter.extract(doc);
+
+    expect(posting?.title).toBe('Senior Java Developers');
+    expect(posting?.company).toBe('CGI');
+    expect(posting?.location).toBe('United Kingdom');
+    expect(posting?.descriptionText).toBe(
+      'Position Description\n\nAt CGI, we build things.\n Build Spring Boot services\n Ship them',
+    );
+  });
+
   it('returns null when the title is missing', () => {
     const doc = docWithHtml(`<div id="job-details">Some description.</div>`);
     expect(linkedInAdapter.extract(doc)).toBeNull();

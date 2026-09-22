@@ -16,15 +16,16 @@ below.
 ## Non-affiliation
 
 JobLens is an independent, unofficial project. It is **not affiliated with, endorsed by, or
-sponsored by LinkedIn, TypeSafe AI, or Anthropic.** It uses LinkedIn's publicly visible page
-content (read by you, in your own browser, on pages you're already viewing), TypeSafe AI's
-Jev API, and Anthropic's Claude API, as a paying/API-key-holding user of each — nothing more.
+sponsored by LinkedIn, TypeSafe AI, or OpenRouter (or any model OpenRouter routes to).** It
+uses LinkedIn's publicly visible page content (read by you, in your own browser, on pages
+you're already viewing), TypeSafe AI's Jev API, and OpenRouter's API, as a
+paying/API-key-holding user of each — nothing more.
 
 ## How classification works
 
 **Jev (TypeSafe AI's System One model) does all classification and scoring.** It never
-generates free text — only typed answers with probabilities. **The LLM (Claude, via Spring
-AI) only generates talking points, and only after a posting passes your gate.** This is
+generates free text — only typed answers with probabilities. **The LLM (via OpenRouter, using
+Spring AI) only generates talking points, and only after a posting passes your gate.** This is
 enforced structurally, not just by convention — see
 [docs/adr/0003-jev-llm-separation.md](docs/adr/0003-jev-llm-separation.md).
 
@@ -46,7 +47,7 @@ flowchart LR
     end
 
     Jev["Jev API<br/>(TypeSafe AI)"]
-    LLM["Claude API<br/>(Anthropic, via Spring AI)"]
+    LLM["OpenRouter API<br/>(via Spring AI)"]
 
     Ext -- "POST /api/v1/analyze<br/>(on your click only)" --> Web
     Web --> UC
@@ -134,7 +135,9 @@ See [.env.example](.env.example) for the full, current list with context. In sho
 
 | Variable | Required when | Notes |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | `joblens.ai.enabled=true` | Talking-points generation. Never committed. |
+| `OPENROUTER_API_KEY` | `joblens.ai.enabled=true` | Talking-points generation, via OpenRouter's OpenAI-compatible endpoint. A key from openrouter.ai/keys. Never committed. |
+| `OPENROUTER_BASE_URL` | Optional | Overrides OpenRouter's base URL (defaults to `https://openrouter.ai/api/v1`). |
+| `OPENROUTER_MODEL` | Optional | Overrides the model requested (defaults to `z-ai/glm-5.2:free`; free-tier model ids rotate, re-check openrouter.ai/api/v1/models if it stops resolving). |
 | `JEV_API_KEY` | `joblens.jev.enabled=true` | Real classification. Never committed. |
 
 Everything else (gate thresholds, cache size, rate limits, CORS origins, API-key auth) is
@@ -151,7 +154,7 @@ When you click "Analyze this posting" in the extension:
 2. Your backend forwards it to **Jev (TypeSafe AI)** for classification — always, for every
    posting analyzed.
 3. **Only** for postings that pass your configured gate, your backend also forwards it to
-   **Claude (Anthropic)**, via Spring AI, to generate talking points.
+   **OpenRouter**, via Spring AI, to generate talking points.
 4. Your candidate profile (target seniority, sponsorship needs) lives in a file you control
    (`backend/profile/candidate-profile.yml`), git-ignored by default, and is sent to the LLM
    provider only alongside a gated posting's talking-points request — never to Jev, and never
@@ -177,8 +180,14 @@ The extension itself only reads the page you're currently viewing, only when you
 - **Rate limiting only becomes real abuse protection once API-key auth is also enabled** — by
   itself it's keyed by a header value nobody validates, so it can be bypassed by rotating that
   header. See ADR-0005.
-- **The Jev/LLM HTTP timeout hasn't been verified against a live call** in either provider —
-  both environments this was built in lacked a real API key at the time. See ADR-0005.
+- **Jev has been verified live**; the LLM route has not been confirmed working end-to-end
+  yet (see [ADR-0011](docs/adr/0011-live-testing-findings.md)) — classification works
+  end-to-end with real data. The LLM adapter has gone through several provider/routing
+  changes (OpenAI direct, AgentRouter OpenAI-compat, AgentRouter native Messages-format,
+  Anthropic direct, now OpenRouter); this needs a fresh live check against the current
+  key/model, and the `.idea/workspace.xml` run config still has a leftover
+  `ANTHROPIC_API_KEY` entry (not even Anthropic's key shape) that needs to be replaced with
+  `OPENROUTER_API_KEY` and a real openrouter.ai key before the IntelliJ run config will work.
 - No custom extension icons yet (Chrome shows its default).
 - Single-candidate, single-operator tool by design — not multi-tenant. "Per-user API key"
   means "the extension authenticates," not a multi-user account system.

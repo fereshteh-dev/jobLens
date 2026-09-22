@@ -25,8 +25,8 @@ In scope:
 - The extension (`extension/`): what it reads from a page, what it stores, and what it sends.
 
 Out of scope:
-- Vulnerabilities in Jev/TypeSafe AI, Anthropic, or LinkedIn's own services - report those to
-  them directly.
+- Vulnerabilities in Jev/TypeSafe AI, OpenRouter (or any model it routes to), or LinkedIn's
+  own services - report those to them directly.
 - Missing hardening for a scenario the README's "Known limits" section already documents as a
   known, accepted gap (e.g. the LinkedIn selectors breaking when LinkedIn changes its markup).
 

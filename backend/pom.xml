@@ -64,8 +64,10 @@
       <artifactId>spring-boot-starter-restclient</artifactId>
     </dependency>
     <dependency>
+      <!-- LLM provider is OpenRouter, via its OpenAI-compatible endpoint - see ADR-0011 for
+           the routing history. -->
       <groupId>org.springframework.ai</groupId>
-      <artifactId>spring-ai-starter-model-anthropic</artifactId>
+      <artifactId>spring-ai-starter-model-openai</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springdoc</groupId>

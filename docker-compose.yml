@@ -8,7 +8,9 @@ services:
       # Both blank by default - only needed if joblens.ai.enabled / joblens.jev.enabled are
       # turned on (backend/src/main/resources/application.yml, or override below). See
       # .env.example.
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - OPENROUTER_BASE_URL=${OPENROUTER_BASE_URL:-}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL:-}
       - JEV_API_KEY=${JEV_API_KEY:-}
     volumes:
       # Mounts your real candidate-profile.yml (git-ignored) into the container at the path

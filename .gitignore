@@ -1,6 +1,9 @@
 ### Secrets ###
 .env
 
+### Claude Code ###
+.claude/
+
 ### Maven ###
 target/
 

@@ -15,13 +15,25 @@ spring:
       connect-timeout: 5s
       read-timeout: 15s
   ai:
-    anthropic:
-      # Real key comes from the ANTHROPIC_API_KEY env var (never committed). The placeholder
-      # keeps startup working when joblens.ai.enabled=false and no key is configured at all.
-      api-key: ${ANTHROPIC_API_KEY:not-configured}
+    openai:
+      # Real key comes from the OPENROUTER_API_KEY env var (never committed) - a key from
+      # openrouter.ai/keys. The placeholder keeps startup working when joblens.ai.enabled=false
+      # and no key is configured at all.
+      api-key: ${OPENROUTER_API_KEY:not-configured}
+
+      # OpenRouter exposes an OpenAI-compatible endpoint - spring-ai-starter-model-openai talks
+      # to it directly, no relay involved. Its Java SDK requires the full path including /v1.
+      base-url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api/v1}
+
       chat:
         options:
-          model: claude-sonnet-5
+          # liquid/lfm-2.5-2.6b:free - switched from z-ai/glm-5.2:free, which stayed
+          # 429 "temporarily rate-limited upstream" (shared free-pool overload) across 12
+          # retries spanning a minute of live testing. This id responded immediately in the
+          # same test. Free-tier models rotate and any of them can hit the same shared-pool
+          # overload later; re-verify against openrouter.ai/api/v1/models if this 404s or
+          # starts 429ing persistently too.
+          model: ${OPENROUTER_MODEL:liquid/lfm-2.5-2.6b:free}
 
 joblens:
   gate:
@@ -40,16 +52,21 @@ joblens:
       valid-keys: []
     # e.g. chrome-extension://<your-extension-id> once you've loaded the built extension.
     # Empty means no CORS headers are sent at all, so browsers block cross-origin calls.
-    allowed-origins: []
+    allowed-origins:
+      - "chrome-extension://mhclalkmenkeffnnmgghaokceahgelmd"
     max-request-body-size: 50KB
   ai:
-    # Real talking points require ANTHROPIC_API_KEY and cost real money - opt in explicitly.
-    # When false (the default), StubTalkingPointsWriter is used instead - see ADR-0003/CLAUDE.md.
-    enabled: false
+    # Real talking points require ANTHROPIC_API_KEY and cost real money. Defaults to true as of
+    # ADR-0011 (live-testing session with real provider keys) - set to false, or override with
+    # JOBLENS_AI_ENABLED=false, to fall back to the offline StubTalkingPointsWriter - see
+    # ADR-0003/ADR-0011/CLAUDE.md.
+    enabled: true
   jev:
-    # Real classification calls Jev and costs money - opt in explicitly. When false (the
-    # default), MockPostingClassifier is used instead - see ADR-0003/CLAUDE.md.
-    enabled: false
+    # Real classification calls Jev and costs money. Defaults to true as of ADR-0011
+    # (live-testing session with real provider keys) - set to false, or override with
+    # JOBLENS_JEV_ENABLED=false, to fall back to the offline MockPostingClassifier - see
+    # ADR-0003/ADR-0011/CLAUDE.md.
+    enabled: true
     base-url: https://api.typesafe.ai/v1
     # Real key comes from the JEV_API_KEY env var (never committed). The placeholder keeps
     # startup working when joblens.jev.enabled=false and no key is configured at all.

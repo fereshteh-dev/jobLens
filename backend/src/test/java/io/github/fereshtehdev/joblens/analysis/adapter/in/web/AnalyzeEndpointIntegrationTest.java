@@ -12,12 +12,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Full context, real config binding, real mock adapters (no @MockitoBean) - proves the whole
- * Phase 2 assembly actually works, independent of any local candidate-profile.yml.
+ * Phase 2 assembly actually works, independent of any local candidate-profile.yml. Forces
+ * joblens.ai.enabled/joblens.jev.enabled to false regardless of the application.yml default
+ * (true as of ADR-0011) so this stays deterministic and doesn't depend on live, funded
+ * provider keys - see ADR-0011.
  */
 @SpringBootTest(properties = {
         "joblens.gate.max-red-flag-score=1.5",
         "joblens.candidate-profile.target-seniority=SENIOR",
-        "joblens.candidate-profile.minimum-sponsorship-likelihood=UNKNOWN"
+        "joblens.candidate-profile.minimum-sponsorship-likelihood=UNKNOWN",
+        "joblens.ai.enabled=false",
+        "joblens.jev.enabled=false"
 })
 @AutoConfigureMockMvc
 class AnalyzeEndpointIntegrationTest {
