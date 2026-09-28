@@ -19,7 +19,7 @@
 
   <properties>
     <java.version>25</java.version>
-    <archunit.version>1.5.0</archunit.version>
+    <archunit.version>1.5.1</archunit.version>
     <jacoco.version>0.8.15</jacoco.version>
     <spring-ai.version>2.0.1</spring-ai.version>
     <caffeine.version>3.3.0</caffeine.version>
